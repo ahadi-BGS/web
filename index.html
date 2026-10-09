@@ -8,12 +8,12 @@
     <!-- Material Design Icons (MDI) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
     
-    <!-- Google Fonts Fallback (Roboto) in case Google Sans is not installed locally -->
+    <!-- Google Fonts: Plus Jakarta Sans / Inter fallback for Google Sans aesthetic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS for rapid styling -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
@@ -21,14 +21,17 @@
             theme: {
                 extend: {
                     colors: {
-                        /* Modern 3-Color Palette */
-                        primary: '#1A73E8',   /* A strong, trustworthy blue */
-                        secondary: '#F1F3F4', /* A clean, soft gray for backgrounds */
-                        accent: '#EA4335',    /* A vibrant red for accents and interactions */
-                        textDark: '#202124'
+                        /* 3 Main Color Theme */
+                        primary: '#1A237E',   /* Deep Indigo/Navy */
+                        primaryLight: '#283593',
+                        secondary: '#0097A7', /* Soft Teal/Cyan */
+                        secondaryBg: '#F4F7F9',
+                        accent: '#FFB300',    /* Vibrant Amber/Gold */
+                        accentHover: '#FFA000',
+                        textDark: '#1E293B'
                     },
                     fontFamily: {
-                        sans: ['"Google Sans"', 'Roboto', 'sans-serif'],
+                        sans: ['"Plus Jakarta Sans"', '"Google Sans"', 'sans-serif'],
                     }
                 }
             }
@@ -37,52 +40,64 @@
 
     <style>
         body {
-            background-color: theme('colors.secondary');
-            color: theme('colors.textDark');
-            font-family: 'Google Sans', Roboto, sans-serif;
+            background-color: #F4F7F9;
+            color: #1E293B;
+            font-family: 'Plus Jakarta Sans', 'Google Sans', sans-serif;
         }
-        
-        .file-card {
-            transition: all 0.2s ease-in-out;
+
+        .card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .file-card:hover {
+
+        .card-hover:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 12px 24px -6px rgba(26, 35, 126, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
         }
 
-        .icon-accent {
-            color: theme('colors.primary');
-            transition: color 0.2s ease-in-out;
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
         }
 
-        .file-card:hover .icon-accent {
-            color: theme('colors.accent');
-        }
-
-        /* Modal transitions */
         .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(2px);
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
         }
-        
-        .hidden-modal {
-            display: none !important;
+
+        .badge-chip {
+            transition: all 0.2s ease;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col relative">
+<body class="min-h-screen flex flex-col antialiased">
 
-    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header class="bg-primary text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <span class="mdi mdi-folder-multiple text-primary text-3xl"></span>
-                <h1 class="text-2xl font-bold tracking-tight text-primary">Ahadi - BGS</h1>
+                <div class="w-11 h-11 bg-accent rounded-xl flex items-center justify-center text-primary shadow-md">
+                    <span class="mdi mdi-folder-google-drive text-2xl font-bold"></span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                        Ahadi - BGS
+                    </h1>
+                    <p class="text-xs text-cyan-200 font-medium">Client-Side Dashboard & File Repository</p>
+                </div>
             </div>
-            <div>
-                <button id="open-modal-btn" class="text-gray-500 hover:text-accent transition-colors flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg font-medium text-sm">
-                    <span class="mdi mdi-plus-circle-outline text-lg"></span>
-                    <span class="hidden sm:inline">Add File</span>
+
+            <div class="flex items-center gap-3">
+                <button id="open-add-modal-btn" class="bg-accent hover:bg-accentHover text-primary font-bold px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 text-sm transform active:scale-95">
+                    <span class="mdi mdi-plus-circle text-lg"></span>
+                    <span class="hidden sm:inline">Add / Upload File</span>
                 </button>
             </div>
         </div>
@@ -90,292 +105,676 @@
 
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-lg font-medium text-gray-700">My Files</h2>
-            <div class="flex gap-2">
-                <span id="loading-spinner" class="mdi mdi-loading mdi-spin text-xl text-primary hidden"></span>
+        <!-- Controls Bar: Search, Category Filters, Statistics -->
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200/80 mb-8 space-y-4">
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
+                <!-- Search Input -->
+                <div class="relative flex-grow max-w-lg">
+                    <span class="mdi mdi-magnify text-slate-400 text-xl absolute left-3.5 top-1/2 -translate-y-1/2"></span>
+                    <input type="text" id="search-input" placeholder="Search by name, tag, or description..." class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent text-sm transition-all">
+                    <button id="clear-search-btn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        <span class="mdi mdi-close-circle text-lg"></span>
+                    </button>
+                </div>
+
+                <!-- Stats summary -->
+                <div class="flex items-center gap-3 text-xs text-slate-500 font-medium self-end md:self-auto">
+                    <span class="bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                        Total Files: <strong id="total-count" class="text-primary font-bold">0</strong>
+                    </span>
+                    <span class="bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                        Storage: <strong id="storage-usage" class="text-secondary font-bold">Local</strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Category Pills Filter -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-2 custom-scrollbar text-xs font-semibold text-slate-600" id="category-filters">
+                <button data-category="all" class="filter-btn active px-3.5 py-2 rounded-xl bg-primary text-white shadow-sm flex items-center gap-1.5 whitespace-nowrap">
+                    <span class="mdi mdi-view-grid-outline"></span> All Files
+                </button>
+                <button data-category="document" class="filter-btn px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5 whitespace-nowrap transition-colors">
+                    <span class="mdi mdi-file-document-outline text-blue-600"></span> Documents
+                </button>
+                <button data-category="image" class="filter-btn px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5 whitespace-nowrap transition-colors">
+                    <span class="mdi mdi-file-image-outline text-emerald-600"></span> Images
+                </button>
+                <button data-category="spreadsheet" class="filter-btn px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5 whitespace-nowrap transition-colors">
+                    <span class="mdi mdi-file-excel-outline text-green-700"></span> Spreadsheets
+                </button>
+                <button data-category="drive" class="filter-btn px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5 whitespace-nowrap transition-colors">
+                    <span class="mdi mdi-google-drive text-amber-600"></span> Drive / Cloud
+                </button>
+                <button data-category="archive" class="filter-btn px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5 whitespace-nowrap transition-colors">
+                    <span class="mdi mdi-folder-zip-outline text-orange-600"></span> Archives
+                </button>
+                <button data-category="other" class="filter-btn px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5 whitespace-nowrap transition-colors">
+                    <span class="mdi mdi-link-variant text-indigo-600"></span> Other Links
+                </button>
             </div>
         </div>
 
-        <!-- File Grid (Populated by Firebase) -->
-        <div id="file-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- Loading state -->
-            <div class="col-span-full text-center py-10 text-gray-500">
-                <span class="mdi mdi-loading mdi-spin text-3xl mb-2 block"></span>
-                Loading your files...
-            </div>
+        <!-- Files Display Grid -->
+        <div id="files-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Dynamically populated files will render here -->
         </div>
+
+        <!-- Empty State View -->
+        <div id="empty-state" class="hidden bg-white rounded-3xl p-12 text-center border border-slate-200/80 shadow-sm my-8">
+            <div class="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="mdi mdi-folder-open-outline text-4xl"></span>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">No files found</h3>
+            <p class="text-slate-500 text-sm max-w-md mx-auto mb-6">There are no files matching your query or current category filter.</p>
+            <button id="reset-filters-btn" class="bg-primary text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-primaryLight transition-all">
+                Reset Search & Filters
+            </button>
+        </div>
+
     </main>
 
-    <!-- Add File Modal -->
-    <div id="add-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden-modal">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-gray-800">Add New File Link</h3>
-                <button id="close-modal-btn" class="text-gray-400 hover:text-accent transition-colors">
+    <div id="add-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay opacity-0 pointer-events-none transition-opacity duration-200 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-200 border border-slate-100" id="add-modal-content">
+            
+            <div class="bg-primary px-6 py-4 flex justify-between items-center text-white">
+                <div class="flex items-center gap-2">
+                    <span class="mdi mdi-file-plus-outline text-2xl text-accent"></span>
+                    <h3 class="text-lg font-bold">Add File Entry</h3>
+                </div>
+                <button id="close-modal-btn" class="text-cyan-200 hover:text-white transition-colors">
                     <span class="mdi mdi-close text-2xl"></span>
                 </button>
             </div>
-            <form id="add-file-form" class="p-6">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="file-name">File Name</label>
-                    <input type="text" id="file-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="file-type">File Type</label>
-                    <select id="file-type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white">
-                        <option value="pdf">PDF Document</option>
-                        <option value="image">Image</option>
-                        <option value="spreadsheet">Spreadsheet</option>
-                        <option value="word">Word Document</option>
-                        <option value="zip">Zip Archive</option>
-                        <option value="folder">Folder / Drive Link</option>
-                        <option value="link">Other Link</option>
-                    </select>
+
+            <!-- Tab selector: Add Link vs Upload Local File -->
+            <div class="flex border-b border-slate-200 bg-slate-50 text-sm font-semibold">
+                <button type="button" id="tab-link-btn" class="flex-1 py-3 px-4 border-b-2 border-secondary text-secondary bg-white text-center flex items-center justify-center gap-2">
+                    <span class="mdi mdi-link-variant"></span> External Link / Drive
+                </button>
+                <button type="button" id="tab-file-btn" class="flex-1 py-3 px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 text-center flex items-center justify-center gap-2">
+                    <span class="mdi mdi-upload"></span> Local File Upload
+                </button>
+            </div>
+
+            <form id="add-file-form" class="p-6 space-y-4">
+                <!-- Mode indicator hidden input -->
+                <input type="hidden" id="entry-mode" value="link">
+
+                <!-- Title Input -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1" for="file-title">Title *</label>
+                    <input type="text" id="file-title" required placeholder="e.g. Q3 Financial Report 2026" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent text-sm">
                 </div>
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="file-url">Link / URL</label>
-                    <input type="url" id="file-url" required placeholder="https://..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                <!-- URL Input (Active in 'link' mode) -->
+                <div id="url-input-container">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1" for="file-url">Link URL *</label>
+                    <input type="url" id="file-url" placeholder="https://drive.google.com/... or https://..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent text-sm">
                 </div>
-                
-                <div class="flex justify-end gap-3">
-                    <button type="button" id="cancel-modal-btn" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium">Cancel</button>
-                    <button type="submit" id="submit-file-btn" class="px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-lg transition-colors font-medium flex items-center gap-2">
-                        <span>Save File</span>
+
+                <!-- File Picker Input (Active in 'file' mode) -->
+                <div id="file-input-container" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Choose File *</label>
+                    <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer" id="drop-zone">
+                        <span class="mdi mdi-cloud-upload-outline text-3xl text-secondary block mb-1"></span>
+                        <p class="text-xs text-slate-600 font-medium mb-1">Click or drag local file here</p>
+                        <p class="text-[10px] text-slate-400">Stored locally in browser (Max ~5MB recommended)</p>
+                        <input type="file" id="local-file-picker" class="hidden">
+                    </div>
+                    <p id="file-selected-name" class="text-xs font-semibold text-secondary mt-2 flex items-center gap-1 hidden">
+                        <span class="mdi mdi-paperclip"></span> <span></span>
+                    </p>
+                </div>
+
+                <!-- Category & Type -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1" for="file-category">Category</label>
+                        <select id="file-category" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent text-sm font-medium">
+                            <option value="document">Document (PDF, Word)</option>
+                            <option value="image">Image / Graphic</option>
+                            <option value="spreadsheet">Spreadsheet (Excel, Sheet)</option>
+                            <option value="drive">Drive / Cloud Folder</option>
+                            <option value="archive">Archive (ZIP, RAR)</option>
+                            <option value="other">Other Link</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1" for="file-tags">Tags (Comma-separated)</label>
+                        <input type="text" id="file-tags" placeholder="finance, report, pdf" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent text-sm">
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1" for="file-desc">Description</label>
+                    <textarea id="file-desc" rows="2" placeholder="Brief note or context about this document..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent text-sm custom-scrollbar"></textarea>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" id="cancel-modal-btn" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-sm transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-primary hover:bg-primaryLight text-white font-bold px-5 py-2.5 rounded-xl shadow-md transition-all text-sm flex items-center gap-2">
+                        <span class="mdi mdi-check-circle-outline"></span> Save Entry
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <footer class="bg-white border-t border-gray-200 mt-auto py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p class="text-sm text-gray-500">© 2026 Ahadi - BGS. All rights reserved.</p>
-            <div class="flex gap-4">
-                <a href="#" class="text-gray-400 hover:text-primary transition-colors"><span class="mdi mdi-github text-xl"></span></a>
-                <a href="#" class="text-gray-400 hover:text-primary transition-colors"><span class="mdi mdi-twitter text-xl"></span></a>
-                <a href="#" class="text-gray-400 hover:text-primary transition-colors"><span class="mdi mdi-email text-xl"></span></a>
+    <div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay opacity-0 pointer-events-none transition-opacity duration-200 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center transform scale-95 transition-transform duration-200">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="mdi mdi-alert-circle-outline text-3xl"></span>
             </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-1">Delete File Entry?</h3>
+            <p class="text-slate-500 text-sm mb-6">Are you sure you want to remove <strong id="delete-file-title" class="text-slate-800">this item</strong>? This action cannot be undone.</p>
+            <div class="flex items-center justify-center gap-3">
+                <button id="cancel-delete-btn" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-sm transition-colors">
+                    Cancel
+                </button>
+                <button id="confirm-delete-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl shadow-md transition-colors text-sm">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 text-sm font-medium">
+        <span id="toast-icon" class="mdi mdi-check-circle text-emerald-400 text-xl"></span>
+        <span id="toast-message">Notification message</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+            <div class="flex items-center gap-2 font-semibold text-primary">
+                <span class="mdi mdi-folder-google-drive"></span>
+                <span>Ahadi - BGS Index</span>
+            </div>
+            <p>© 2026 Ahadi - BGS. Client-side repository running on GitHub Pages.</p>
         </div>
     </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        // Key for local persistence
+        const STORAGE_KEY = 'ahadi_bgs_files_v1';
 
-        // Environment variables setup
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ahadi-bgs-default';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config) 
-            : { projectId: "demo-project" }; // Mock config for preview if undefined
+        // Pre-populated Sample Data for First Load
+        const SAMPLE_DATA = [
+            {
+                id: 'sample-1',
+                title: 'Project Ahadi Strategy Plan 2026',
+                category: 'document',
+                url: 'https://docs.google.com/document/d/sample-strategy-plan',
+                description: 'Master strategic document detailing goals, timeline, and deliverables for 2026.',
+                tags: ['strategy', 'planning', '2026'],
+                isLocalFile: false,
+                dateAdded: new Date(Date.now() - 86400000 * 3).toISOString()
+            },
+            {
+                id: 'sample-2',
+                title: 'BGS Financial Budget & Assets',
+                category: 'spreadsheet',
+                url: 'https://docs.google.com/spreadsheets/d/sample-budget',
+                description: 'Live financial summary, monthly expenditure, and quarterly forecast.',
+                tags: ['budget', 'finance', 'excel'],
+                isLocalFile: false,
+                dateAdded: new Date(Date.now() - 86400000 * 2).toISOString()
+            },
+            {
+                id: 'sample-3',
+                title: 'Brand Assets & Logo Repository',
+                category: 'drive',
+                url: 'https://drive.google.com/drive/folders/sample-brand-assets',
+                description: 'Google Drive folder containing high-res vectors, icons, logos, and color guidelines.',
+                tags: ['design', 'logos', 'branding'],
+                isLocalFile: false,
+                dateAdded: new Date(Date.now() - 86400000 * 5).toISOString()
+            },
+            {
+                id: 'sample-4',
+                title: 'Architecture Blueprint Diagram',
+                category: 'image',
+                url: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+                description: 'High level system diagram and infrastructure setup layout.',
+                tags: ['architecture', 'diagram', 'blueprint'],
+                isLocalFile: false,
+                dateAdded: new Date(Date.now() - 86400000 * 1).toISOString()
+            }
+        ];
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        let currentUserId = null;
-        let unsubscribeSnapshot = null;
+        // State variables
+        let files = [];
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let itemToDeleteId = null;
+        let selectedLocalFileDataUrl = null;
 
-        // DOM Elements
-        const fileGrid = document.getElementById('file-grid');
+        // UI DOM References
+        const filesGrid = document.getElementById('files-grid');
+        const emptyState = document.getElementById('empty-state');
+        const searchInput = document.getElementById('search-input');
+        const clearSearchBtn = document.getElementById('clear-search-btn');
+        const totalCountEl = document.getElementById('total-count');
+        const storageUsageEl = document.getElementById('storage-usage');
+
+        // Modal DOM References
         const addModal = document.getElementById('add-modal');
-        const openModalBtn = document.getElementById('open-modal-btn');
+        const addModalContent = document.getElementById('add-modal-content');
+        const openAddModalBtn = document.getElementById('open-add-modal-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const cancelModalBtn = document.getElementById('cancel-modal-btn');
         const addFileForm = document.getElementById('add-file-form');
-        const submitFileBtn = document.getElementById('submit-file-btn');
-        const loadingSpinner = document.getElementById('loading-spinner');
 
-        const fileTypeConfig = {
-            pdf: { icon: 'mdi-file-pdf-box', color: 'text-red-500', bg: 'bg-red-50' },
-            image: { icon: 'mdi-image', color: 'text-blue-500', bg: 'bg-blue-50' },
-            spreadsheet: { icon: 'mdi-file-excel', color: 'text-green-600', bg: 'bg-green-50' },
-            word: { icon: 'mdi-file-word', color: 'text-blue-600', bg: 'bg-blue-50' },
-            zip: { icon: 'mdi-folder-zip', color: 'text-orange-500', bg: 'bg-orange-50' },
-            folder: { icon: 'mdi-folder', color: 'text-gray-600', bg: 'bg-gray-100' },
-            link: { icon: 'mdi-link-variant', color: 'text-purple-500', bg: 'bg-purple-50' }
+        // Tabs DOM
+        const tabLinkBtn = document.getElementById('tab-link-btn');
+        const tabFileBtn = document.getElementById('tab-file-btn');
+        const urlInputContainer = document.getElementById('url-input-container');
+        const fileInputContainer = document.getElementById('file-input-container');
+        const entryModeInput = document.getElementById('entry-mode');
+        const localFilePicker = document.getElementById('local-file-picker');
+        const dropZone = document.getElementById('drop-zone');
+        const fileSelectedName = document.getElementById('file-selected-name');
+
+        // Delete Modal DOM
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteFileTitle = document.getElementById('delete-file-title');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+
+        // Category Icon Mapping
+        const CATEGORY_CONFIG = {
+            document: { icon: 'mdi-file-document-outline', color: 'text-blue-600', bg: 'bg-blue-50', badgeBg: 'bg-blue-100 text-blue-800' },
+            image: { icon: 'mdi-file-image-outline', color: 'text-emerald-600', bg: 'bg-emerald-50', badgeBg: 'bg-emerald-100 text-emerald-800' },
+            spreadsheet: { icon: 'mdi-file-excel-outline', color: 'text-green-700', bg: 'bg-green-50', badgeBg: 'bg-green-100 text-green-800' },
+            drive: { icon: 'mdi-google-drive', color: 'text-amber-600', bg: 'bg-amber-50', badgeBg: 'bg-amber-100 text-amber-800' },
+            archive: { icon: 'mdi-folder-zip-outline', color: 'text-orange-600', bg: 'bg-orange-50', badgeBg: 'bg-orange-100 text-orange-800' },
+            other: { icon: 'mdi-link-variant', color: 'text-indigo-600', bg: 'bg-indigo-50', badgeBg: 'bg-indigo-100 text-indigo-800' }
         };
 
-        async function initAuth() {
+        function loadData() {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    files = JSON.parse(stored);
                 } else {
-                    await signInAnonymously(auth);
+                    // Populate initial sample data on first run
+                    files = [...SAMPLE_DATA];
+                    saveData();
                 }
-                
-                if (auth.currentUser) {
-                    currentUserId = auth.currentUser.uid;
-                    loadFiles();
-                }
-            } catch (error) {
-                console.error("Authentication failed:", error);
-                fileGrid.innerHTML = `<div class="col-span-full text-center text-accent py-10">Failed to authenticate. Please try again.</div>`;
+            } catch (e) {
+                console.error('Failed to load from localStorage', e);
+                files = [...SAMPLE_DATA];
+            }
+            updateStorageUsageInfo();
+            render();
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+                updateStorageUsageInfo();
+            } catch (e) {
+                console.error('Failed to save to localStorage', e);
+                showToast('Storage limit exceeded! Try deleting large files.', 'mdi-alert-circle', 'text-red-400');
             }
         }
 
-        function loadFiles() {
-            if (!currentUserId) return;
-            
-            loadingSpinner.classList.remove('hidden');
-            
-            // STRICT PATH RULE: Private user data
-            const filesRef = collection(db, 'artifacts', appId, 'users', currentUserId, 'files');
-            
-            if (unsubscribeSnapshot) unsubscribeSnapshot();
-            
-            unsubscribeSnapshot = onSnapshot(filesRef, (snapshot) => {
-                fileGrid.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    fileGrid.innerHTML = `
-                        <div class="col-span-full text-center py-12 flex flex-col items-center">
-                            <span class="mdi mdi-folder-open-outline text-6xl text-gray-300 mb-3"></span>
-                            <p class="text-gray-500 text-lg">No files found.</p>
-                            <p class="text-gray-400 text-sm mt-1">Click "Add File" to save a new link.</p>
-                        </div>
-                    `;
-                } else {
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        renderFileCard(doc.id, data);
-                    });
-                }
-                loadingSpinner.classList.add('hidden');
-            }, (error) => {
-                console.error("Error fetching files:", error);
-                fileGrid.innerHTML = `<div class="col-span-full text-center text-accent py-10">Error loading files.</div>`;
-                loadingSpinner.classList.add('hidden');
-            });
+        function updateStorageUsageInfo() {
+            try {
+                const jsonString = JSON.stringify(files);
+                const bytes = new Blob([jsonString]).size;
+                const kb = (bytes / 1024).toFixed(1);
+                storageUsageEl.textContent = bytes > 1048576 
+                    ? `${(bytes / 1048576).toFixed(2)} MB` 
+                    : `${kb} KB`;
+            } catch(e) {
+                storageUsageEl.textContent = 'Local';
+            }
         }
 
-        function renderFileCard(docId, data) {
-            const config = fileTypeConfig[data.type] || fileTypeConfig.link;
-            const dateStr = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'Unknown date';
-            
-            const cardHTML = `
-                <div class="file-card bg-white rounded-xl p-5 border border-gray-100 flex flex-col h-full group relative focus-within:ring-2 focus-within:ring-primary">
-                    <a href="${data.url}" target="_blank" rel="noopener noreferrer" class="absolute inset-0 z-0 outline-none"></a>
-                    
-                    <div class="flex justify-between items-start mb-4 z-10 relative pointer-events-none">
-                        <div class="${config.bg} p-3 rounded-lg">
-                            <span class="mdi ${config.icon} text-4xl ${config.color} icon-accent"></span>
+        function render() {
+            totalCountEl.textContent = files.length;
+
+            // Filter logic
+            const filtered = files.filter(file => {
+                const matchesCategory = activeCategory === 'all' || file.category === activeCategory;
+                
+                const q = searchQuery.toLowerCase().trim();
+                const matchesSearch = !q || 
+                    file.title.toLowerCase().includes(q) || 
+                    (file.description && file.description.toLowerCase().includes(q)) ||
+                    (file.tags && file.tags.some(t => t.toLowerCase().includes(q)));
+
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                filesGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            filesGrid.innerHTML = filtered.map(file => createFileCardHTML(file)).join('');
+        }
+
+        function createFileCardHTML(file) {
+            const config = CATEGORY_CONFIG[file.category] || CATEGORY_CONFIG.other;
+            const dateFormatted = new Date(file.dateAdded).toLocaleDateString(undefined, {
+                month: 'short', day: 'numeric', year: 'numeric'
+            });
+
+            const tagsHTML = file.tags && file.tags.length > 0
+                ? file.tags.map(t => `<span class="bg-slate-100 text-slate-600 text-[11px] font-medium px-2 py-0.5 rounded-md">#${escapeHTML(t)}</span>`).join(' ')
+                : '';
+
+            return `
+                <div class="card-hover bg-white rounded-2xl border border-slate-200/80 p-5 flex flex-col justify-between relative group">
+                    <div>
+                        <!-- Top Header: Category Icon & Actions -->
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <div class="${config.bg} p-3 rounded-xl flex items-center justify-center">
+                                <span class="mdi ${config.icon} text-2xl ${config.color}"></span>
+                            </div>
+
+                            <div class="flex items-center gap-1 opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="copyToClipboard('${escapeHTML(file.url)}')" class="text-slate-400 hover:text-secondary p-1.5 rounded-lg hover:bg-slate-100 transition-colors" title="Copy Link">
+                                    <span class="mdi mdi-content-copy text-lg"></span>
+                                </button>
+                                <button onclick="openDeleteModal('${file.id}', '${escapeHTML(file.title)}')" class="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="Delete Entry">
+                                    <span class="mdi mdi-trash-can-outline text-lg"></span>
+                                </button>
+                            </div>
                         </div>
-                        <button class="delete-btn text-gray-300 hover:text-accent cursor-pointer transition-colors p-1 rounded-full hover:bg-red-50 pointer-events-auto" data-id="${docId}" title="Delete File">
-                            <span class="mdi mdi-delete-outline text-xl"></span>
-                        </button>
+
+                        <!-- Card Content -->
+                        <div class="mb-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-md ${config.badgeBg}">
+                                    ${file.category}
+                                </span>
+                                ${file.isLocalFile ? '<span class="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-md bg-purple-100 text-purple-800">Local Upload</span>' : ''}
+                            </div>
+                            <h3 class="text-base font-bold text-slate-800 line-clamp-2 hover:text-primary transition-colors">
+                                ${escapeHTML(file.title)}
+                            </h3>
+                            ${file.description ? `<p class="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">${escapeHTML(file.description)}</p>` : ''}
+                        </div>
+
+                        <!-- Tags -->
+                        ${tagsHTML ? `<div class="flex flex-wrap gap-1 mb-4">${tagsHTML}</div>` : ''}
                     </div>
-                    
-                    <div class="flex-grow z-10 relative pointer-events-none">
-                        <h3 class="text-md font-semibold text-gray-800 line-clamp-2 group-hover:text-primary transition-colors">${escapeHTML(data.name)}</h3>
-                        <p class="text-sm text-gray-500 mt-1">Added: ${dateStr}</p>
+
+                    <!-- Card Footer: Date & Open Button -->
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between mt-2 text-xs">
+                        <span class="text-slate-400 font-medium flex items-center gap-1">
+                            <span class="mdi mdi-calendar-blank-outline"></span> ${dateFormatted}
+                        </span>
+                        <a href="${escapeHTML(file.url)}" ${file.isLocalFile ? `download="${escapeHTML(file.title)}"` : 'target="_blank" rel="noopener noreferrer"'} class="bg-primary/5 hover:bg-primary text-primary hover:text-white font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                            <span>${file.isLocalFile ? 'Download' : 'Open'}</span>
+                            <span class="mdi ${file.isLocalFile ? 'mdi-download' : 'mdi-open-in-new'} text-sm"></span>
+                        </a>
                     </div>
                 </div>
             `;
-            
-            fileGrid.insertAdjacentHTML('beforeend', cardHTML);
         }
 
-        // Helper to prevent XSS
         function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    "'": '&#39;',
-                    '"': '&quot;'
-                }[tag])
-            );
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag]));
         }
 
-        
-        // Modal toggles
-        function toggleModal(show) {
+        document.getElementById('category-filters').addEventListener('click', (e) => {
+            const btn = e.target.closest('.filter-btn');
+            if (!btn) return;
+
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('bg-primary', 'text-white', 'shadow-sm');
+                b.classList.add('bg-slate-100', 'text-slate-700');
+            });
+
+            btn.classList.remove('bg-slate-100', 'text-slate-700');
+            btn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+
+            activeCategory = btn.getAttribute('data-category');
+            render();
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            clearSearchBtn.classList.toggle('hidden', !searchQuery);
+            render();
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchQuery = '';
+            clearSearchBtn.classList.add('hidden');
+            render();
+        });
+
+        document.getElementById('reset-filters-btn').addEventListener('click', () => {
+            searchInput.value = '';
+            searchQuery = '';
+            clearSearchBtn.classList.add('hidden');
+            activeCategory = 'all';
+            
+            // Reset category pills
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                const cat = b.getAttribute('data-category');
+                if (cat === 'all') {
+                    b.classList.add('bg-primary', 'text-white');
+                    b.classList.remove('bg-slate-100', 'text-slate-700');
+                } else {
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('bg-slate-100', 'text-slate-700');
+                }
+            });
+
+            render();
+        });
+
+        function toggleAddModal(show) {
             if (show) {
-                addModal.classList.remove('hidden-modal');
-                document.getElementById('file-name').focus();
+                addModal.classList.remove('pointer-events-none', 'opacity-0');
+                addModalContent.classList.remove('scale-95');
+                addModalContent.classList.add('scale-100');
+                document.getElementById('file-title').focus();
             } else {
-                addModal.classList.add('hidden-modal');
+                addModal.classList.add('pointer-events-none', 'opacity-0');
+                addModalContent.classList.remove('scale-100');
+                addModalContent.classList.add('scale-95');
                 addFileForm.reset();
+                selectedLocalFileDataUrl = null;
+                fileSelectedName.classList.add('hidden');
+                switchTab('link');
             }
         }
 
-        openModalBtn.addEventListener('click', () => toggleModal(true));
-        closeModalBtn.addEventListener('click', () => toggleModal(false));
-        cancelModalBtn.addEventListener('click', () => toggleModal(false));
+        openAddModalBtn.addEventListener('click', () => toggleAddModal(true));
+        closeModalBtn.addEventListener('click', () => toggleAddModal(false));
+        cancelModalBtn.addEventListener('click', () => toggleAddModal(false));
 
-        // Close modal on outside click
-        addModal.addEventListener('click', (e) => {
-            if (e.target === addModal) toggleModal(false);
+        function switchTab(mode) {
+            entryModeInput.value = mode;
+            if (mode === 'link') {
+                tabLinkBtn.classList.add('border-secondary', 'text-secondary', 'bg-white');
+                tabLinkBtn.classList.remove('border-transparent', 'text-slate-500');
+                tabFileBtn.classList.remove('border-secondary', 'text-secondary', 'bg-white');
+                tabFileBtn.classList.add('border-transparent', 'text-slate-500');
+                urlInputContainer.classList.remove('hidden');
+                fileInputContainer.classList.add('hidden');
+                document.getElementById('file-url').required = true;
+            } else {
+                tabFileBtn.classList.add('border-secondary', 'text-secondary', 'bg-white');
+                tabFileBtn.classList.remove('border-transparent', 'text-slate-500');
+                tabLinkBtn.classList.remove('border-secondary', 'text-secondary', 'bg-white');
+                tabLinkBtn.classList.add('border-transparent', 'text-slate-500');
+                fileInputContainer.classList.remove('hidden');
+                urlInputContainer.classList.add('hidden');
+                document.getElementById('file-url').required = false;
+            }
+        }
+
+        tabLinkBtn.addEventListener('click', () => switchTab('link'));
+        tabFileBtn.addEventListener('click', () => switchTab('file'));
+
+        // Handle File Picker & Drag-and-Drop
+        dropZone.addEventListener('click', () => localFilePicker.click());
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-secondary', 'bg-slate-100');
+            }, false);
         });
 
-        // Handle Add form submission
-        addFileForm.addEventListener('submit', async (e) => {
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-secondary', 'bg-slate-100');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) handleFileSelect(files[0]);
+        });
+
+        localFilePicker.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFileSelect(e.target.files[0]);
+        });
+
+        function handleFileSelect(file) {
+            // Auto fill title if empty
+            const titleInput = document.getElementById('file-title');
+            if (!titleInput.value) {
+                titleInput.value = file.name;
+            }
+
+            // Auto detect category
+            const categorySelect = document.getElementById('file-category');
+            if (file.type.startsWith('image/')) categorySelect.value = 'image';
+            else if (file.type.includes('pdf') || file.type.includes('word')) categorySelect.value = 'document';
+            else if (file.type.includes('sheet') || file.type.includes('csv') || file.type.includes('excel')) categorySelect.value = 'spreadsheet';
+            else if (file.type.includes('zip') || file.type.includes('compressed')) categorySelect.value = 'archive';
+
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                selectedLocalFileDataUrl = evt.target.result;
+                fileSelectedName.querySelector('span:last-child').textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                fileSelectedName.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Add File Form Submission
+        addFileForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            if (!currentUserId) return;
 
-            const name = document.getElementById('file-name').value.trim();
-            const type = document.getElementById('file-type').value;
-            const url = document.getElementById('file-url').value.trim();
-            
-            if (!name || !url) return;
+            const mode = entryModeInput.value;
+            const title = document.getElementById('file-title').value.trim();
+            const category = document.getElementById('file-category').value;
+            const description = document.getElementById('file-desc').value.trim();
+            const rawTags = document.getElementById('file-tags').value;
+            const tags = rawTags ? rawTags.split(',').map(t => t.trim()).filter(Boolean) : [];
 
-            const originalBtnText = submitFileBtn.innerHTML;
-            submitFileBtn.innerHTML = '<span class="mdi mdi-loading mdi-spin"></span> Saving...';
-            submitFileBtn.disabled = true;
+            let finalUrl = '';
+            let isLocal = false;
 
-            try {
-                const filesRef = collection(db, 'artifacts', appId, 'users', currentUserId, 'files');
-                await addDoc(filesRef, {
-                    name,
-                    type,
-                    url,
-                    createdAt: new Date().toISOString()
-                });
-                toggleModal(false);
-            } catch (error) {
-                console.error("Error adding document: ", error);
-                alert("Failed to add file. Please try again.");
-            } finally {
-                submitFileBtn.innerHTML = originalBtnText;
-                submitFileBtn.disabled = false;
+            if (mode === 'link') {
+                finalUrl = document.getElementById('file-url').value.trim();
+                if (!finalUrl) return;
+            } else {
+                if (!selectedLocalFileDataUrl) {
+                    showToast('Please select a local file to attach.', 'mdi-alert-circle', 'text-amber-400');
+                    return;
+                }
+                finalUrl = selectedLocalFileDataUrl;
+                isLocal = true;
             }
+
+            const newFile = {
+                id: 'file-' + Date.now(),
+                title,
+                category,
+                url: finalUrl,
+                description,
+                tags,
+                isLocalFile: isLocal,
+                dateAdded: new Date().toISOString()
+            };
+
+            files.unshift(newFile);
+            saveData();
+            render();
+            toggleAddModal(false);
+            showToast('File added successfully!', 'mdi-check-circle', 'text-emerald-400');
         });
 
-        // Handle Delete Action via event delegation
-        fileGrid.addEventListener('click', async (e) => {
-            const deleteBtn = e.target.closest('.delete-btn');
-            if (!deleteBtn) return;
-            
-            // Prevent link click
-            e.preventDefault(); 
-            e.stopPropagation();
+        window.openDeleteModal = function(id, title) {
+            itemToDeleteId = id;
+            deleteFileTitle.textContent = title;
+            deleteModal.classList.remove('pointer-events-none', 'opacity-0');
+        };
 
-            const docId = deleteBtn.getAttribute('data-id');
-            if (!docId || !currentUserId) return;
+        function closeDeleteModal() {
+            itemToDeleteId = null;
+            deleteModal.classList.add('pointer-events-none', 'opacity-0');
+        }
 
-            // Simple visual confirmation before delete
-            const originalIcon = deleteBtn.innerHTML;
-            deleteBtn.innerHTML = '<span class="mdi mdi-loading mdi-spin text-accent"></span>';
+        cancelDeleteBtn.addEventListener('click', closeDeleteModal);
 
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'files', docId);
-                await deleteDoc(docRef);
-            } catch (error) {
-                console.error("Error deleting document: ", error);
-                deleteBtn.innerHTML = originalIcon;
-                // Note: Normally alert is forbidden, but catching edge case network failures
-                // UI will revert icon.
-            }
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (!itemToDeleteId) return;
+            files = files.filter(f => f.id !== itemToDeleteId);
+            saveData();
+            render();
+            closeDeleteModal();
+            showToast('File entry deleted.', 'mdi-delete-check', 'text-amber-400');
         });
 
-        initAuth();
+        // Copy Link Helper
+        window.copyToClipboard = function(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+            showToast('Link copied to clipboard!', 'mdi-clipboard-check', 'text-emerald-400');
+        };
 
+        // Toast Helper
+        function showToast(msg, iconClass = 'mdi-check-circle', iconColor = 'text-emerald-400') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = msg;
+            toastIcon.className = `mdi ${iconClass} ${iconColor} text-xl`;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Initialize App on Load
+        window.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
